@@ -1,10 +1,10 @@
 # Changelog
 
-## [0.1.2] - 2026-08-07
+## [0.1.3] - 2026-08-07
 
 ### Fixed
-- Added missing `authors` field in `Cargo.toml` set to `["Santh <64453045+santhreal@users.noreply.github.com>"]`.
-- Audited SARIF output & config resolution silent fallbacks: confirmed region block omission for findings without line numbers and verified non-NotFound I/O errors surface as `ConfigRead`.
+- Verified `authors` field in `Cargo.toml` set to `["Santh <64453045+santhreal@users.noreply.github.com>"]`.
+- Audited SARIF output & config resolution silent fallbacks: confirmed region block omission for findings without line numbers, startLine without startColumn when line-only, and verified non-NotFound I/O errors surface as `ConfigRead`.
 
 ### Changed
 - Confirmed honest `package.metadata.santh.status = "beta"` (no fuzz directory present).

@@ -82,6 +82,32 @@ fn sarif_emits_real_line_and_column_when_present() {
 }
 
 #[test]
+fn sarif_emits_line_without_column_when_column_is_none() {
+    let loc = Location::new("src/main.rs")
+        .expect("valid location")
+        .line(42)
+        .expect("nonzero line");
+    let finding = Finding::builder("unit-scanner", "src/main.rs", Severity::High)
+        .title("Line-only finding")
+        .detail("Has line but no column.")
+        .location(loc)
+        .build()
+        .expect("Fix: finding builder inputs must stay valid.");
+
+    let mut output = Vec::new();
+    emit_finding(&finding, OutputFormat::Sarif, &mut output).expect("sarif emit must succeed");
+    let doc: serde_json::Value =
+        serde_json::from_slice(&output).expect("sarif output must be valid JSON");
+
+    let region = &doc["runs"][0]["results"][0]["locations"][0]["physicalLocation"]["region"];
+    assert_eq!(region["startLine"], serde_json::json!(42), "real startLine must appear");
+    assert!(
+        region["startColumn"].is_null(),
+        "startColumn must be absent when column is None"
+    );
+}
+
+#[test]
 fn sarif_properties_arrays_serialize_string_values() {
     let finding = Finding::builder("unit-scanner", "src/main.rs", Severity::High)
         .title("Unsafe input reaches sink")
