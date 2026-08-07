@@ -24,21 +24,31 @@ each tool a consistent surface without re-implementing the boilerplate:
 
 Add the dependency and route your binary's `main` through `santh_main`:
 
-```rust
+```rust,no_run
 use santh_cli::{santh_main, GlobalFlags, SanthCli, SanthExitCode};
+
+#[derive(clap::Subcommand)]
+enum MySubcommand {
+    /// Run the scan.
+    Scan,
+}
 
 struct MyTool;
 
 impl SanthCli for MyTool {
-    type Subcommand = MySubcommand; // your `clap::Subcommand`
+    type Subcommand = MySubcommand;
 
     fn tool_name() -> &'static str { "mytool" }
-    fn tool_version() -> &'static str { env!("CARGO_PKG_VERSION") }
+    fn tool_version() -> &'static str { "0.1.0" }
     fn tool_description() -> &'static str { "does the thing" }
 
     fn run(globals: GlobalFlags, subcommand: Self::Subcommand) -> std::process::ExitCode {
-        // ... your logic ...
-        SanthExitCode::Success.into()
+        match subcommand {
+            MySubcommand::Scan => {
+                // ... your logic ...
+                SanthExitCode::Success.into()
+            }
+        }
     }
 }
 

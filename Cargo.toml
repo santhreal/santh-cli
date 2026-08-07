@@ -1,7 +1,8 @@
 [package]
 name = "santh-cli"
-version = "0.1.1"
+version = "0.1.2"
 description = "Shared CLI building blocks for Santh tools: flag parsing, config loading, and finding output with terminal escaping"
+authors = ["Santh <64453045+santhreal@users.noreply.github.com>"]
 keywords = ["cli", "output", "sarif", "findings"]
 homepage = "https://santh.dev"
 repository = "https://github.com/santhreal/santh-cli"
