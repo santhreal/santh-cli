@@ -24,4 +24,9 @@ fn maps_to_process_codes() {
         std::process::ExitCode::from(SanthExitCode::Interrupted),
         std::process::ExitCode::from(130)
     );
+    assert_eq!(SanthExitCode::Success.as_u8(), 0);
+    assert_eq!(SanthExitCode::FindingsEmitted.as_u8(), 1);
+    assert_eq!(SanthExitCode::UserError.as_u8(), 2);
+    assert_eq!(SanthExitCode::SystemError.as_u8(), 3);
+    assert_eq!(SanthExitCode::Interrupted.as_u8(), 130);
 }

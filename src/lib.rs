@@ -50,7 +50,9 @@ pub use error::{SanthError, SanthResult};
 pub use exit_code::SanthExitCode;
 pub use finding::emit_finding;
 pub use flags::{GlobalFlags, GlobalFlagsBuilder, LogLevel, OutputFormat};
-pub use runner::{is_interrupted, parse_santh_cli_from, santh_main, SanthCli, SanthCliBuilder};
+pub use runner::{
+    is_interrupted, parse_santh_cli_from, reset_interrupted, santh_main, SanthCli, SanthCliBuilder,
+};
 
 // Rung 7 (contract): the README quick-start is a doctest, so a README example
 // that drifts from the real API fails `cargo test` instead of misleading users.

@@ -16,9 +16,16 @@ pub enum SanthExitCode {
     /// Interrupted by SIGINT.
     Interrupted = 130,
 }
+impl SanthExitCode {
+    /// Return the raw integer exit code.
+    #[must_use]
+    pub const fn as_u8(self) -> u8 {
+        self as u8
+    }
+}
 
 impl From<SanthExitCode> for ExitCode {
     fn from(value: SanthExitCode) -> Self {
-        Self::from(value as u8)
+        Self::from(value.as_u8())
     }
 }

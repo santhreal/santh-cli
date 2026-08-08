@@ -55,3 +55,16 @@ fn global_flags_parse_roundtrip() {
         .build();
     assert_eq!(built, parsed);
 }
+#[test]
+fn global_flags_validate_rejects_zero_metrics_port() {
+    let mut flags = GlobalFlags::default();
+    flags.metrics_port = Some(0);
+    assert!(flags.validate().is_err());
+}
+
+#[test]
+fn global_flags_validate_rejects_invalid_profile_name() {
+    let mut flags = GlobalFlags::default();
+    flags.profile = Some("invalid profile name!".to_string());
+    assert!(flags.validate().is_err());
+}

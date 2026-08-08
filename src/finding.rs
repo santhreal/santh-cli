@@ -21,8 +21,20 @@ pub fn emit_finding(
     }
 }
 
+fn map_json_error(err: serde_json::Error) -> crate::SanthError {
+    if err.is_io() {
+        let io_err = if let Some(kind) = err.io_error_kind() {
+            std::io::Error::new(kind, err)
+        } else {
+            std::io::Error::new(std::io::ErrorKind::Other, err)
+        };
+        return crate::SanthError::Write(io_err);
+    }
+    crate::SanthError::Serialize(err)
+}
+
 fn emit_json(finding: &secfinding::Finding, stdout: &mut impl Write) -> SanthResult<()> {
-    serde_json::to_writer(&mut *stdout, finding)?;
+    serde_json::to_writer(&mut *stdout, finding).map_err(map_json_error)?;
     stdout.write_all(b"\n")?;
     Ok(())
 }
@@ -101,7 +113,7 @@ fn emit_sarif(finding: &secfinding::Finding, stdout: &mut impl Write) -> SanthRe
         }]
     });
 
-    serde_json::to_writer_pretty(&mut *stdout, &document)?;
+    serde_json::to_writer_pretty(&mut *stdout, &document).map_err(map_json_error)?;
     stdout.write_all(b"\n")?;
     Ok(())
 }
@@ -116,7 +128,7 @@ fn emit_human(finding: &secfinding::Finding, stdout: &mut impl Write) -> SanthRe
         sanitize_terminal(finding.title())
     )?;
     writeln!(stdout, "  target: {}", sanitize_terminal(finding.target()))?;
-    writeln!(stdout, "  type: {}", finding.kind())?;
+    writeln!(stdout, "  type: {}", sanitize_terminal(&finding.kind().to_string()))?;
     if let Some(location) = finding.location() {
         writeln!(stdout, "  location: {}", sanitize_terminal(&location.to_string()))?;
     }

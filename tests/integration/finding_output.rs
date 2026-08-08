@@ -197,3 +197,54 @@ fn human_output_strips_terminal_control_characters() {
         "only the color-on and reset sequences may remain: {text:?}"
     );
 }
+
+#[test]
+fn human_output_strips_terminal_control_characters_from_kind() {
+    let finding = Finding::builder("unit-scanner\x1b[31m", "src/main.rs", Severity::High)
+        .title("clean title")
+        .build()
+        .expect("builder accepts fields");
+
+    let mut output = Vec::new();
+    emit_finding(&finding, OutputFormat::Human, &mut output).expect("human output writes");
+    let text = String::from_utf8(output).expect("utf8 text");
+
+    assert!(
+        !text.contains("unit-scanner\x1b[31m"),
+        "control characters in scanner/kind must be sanitized: {text:?}"
+    );
+}
+
+struct FailingWriter;
+
+impl std::io::Write for FailingWriter {
+    fn write(&mut self, _buf: &[u8]) -> std::io::Result<usize> {
+        Err(std::io::Error::new(
+            std::io::ErrorKind::BrokenPipe,
+            "broken pipe simulation",
+        ))
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        Err(std::io::Error::new(
+            std::io::ErrorKind::BrokenPipe,
+            "broken pipe simulation",
+        ))
+    }
+}
+
+#[test]
+fn emit_finding_maps_io_writer_error_to_write_variant() {
+    let finding = crate::support::sample_finding();
+
+    for format in [OutputFormat::Json, OutputFormat::Sarif] {
+        let mut writer = FailingWriter;
+        let result = emit_finding(&finding, format, &mut writer);
+        match result {
+            Err(santh_cli::SanthError::Write(io_err)) => {
+                assert_eq!(io_err.kind(), std::io::ErrorKind::BrokenPipe);
+            }
+            other => panic!("expected SanthError::Write, got {other:?}"),
+        }
+    }
+}

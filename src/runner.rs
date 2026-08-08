@@ -26,6 +26,14 @@ pub fn is_interrupted() -> bool {
     INTERRUPTED.load(Ordering::SeqCst)
 }
 
+/// Reset the process-global interrupt flag to `false`.
+///
+/// Multi-run execution harnesses or tests that run multiple commands
+/// sequentially in the same process use this to clear signal state.
+pub fn reset_interrupted() {
+    INTERRUPTED.store(false, Ordering::SeqCst);
+}
+
 /// Contract implemented by command-line tools that use the shared CLI.
 pub trait SanthCli {
     /// Tool subcommands.
@@ -122,12 +130,15 @@ where
     }
 
     fn run_inner(self) -> ExitCode {
+        INTERRUPTED.store(false, Ordering::SeqCst);
         if self.install_ctrlc {
             if let Err(source) = install_ctrlc_handler() {
-                write_stderr_line(&format!(
-                    "failed to install Ctrl+C handler: {source}. Fix: ensure no incompatible signal handler is already installed."
-                ));
-                return SanthExitCode::SystemError.into();
+                if !matches!(source, ctrlc::Error::MultipleHandlers) {
+                    write_stderr_line(&format!(
+                        "failed to install Ctrl+C handler: {source}. Fix: ensure no incompatible signal handler is already installed."
+                    ));
+                    return SanthExitCode::SystemError.into();
+                }
             }
         }
 
@@ -237,6 +248,9 @@ where
         .value_source("log_level")
         .is_some_and(|source| source == clap::parser::ValueSource::CommandLine);
     let parsed = SanthArgs::<T::Subcommand>::from_arg_matches(&matches)?;
+    parsed.globals.validate().map_err(|msg| {
+        clap::Error::raw(clap::error::ErrorKind::InvalidValue, format!("{msg}\n"))
+    })?;
 
     Ok((parsed.globals, log_level_overridden, parsed.subcommand))
 }

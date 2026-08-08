@@ -69,6 +69,21 @@ impl GlobalFlags {
             self.log_level
         }
     }
+
+    /// Validate that all flag values meet invariant constraints.
+    pub fn validate(&self) -> Result<(), String> {
+        if let Some(port) = self.metrics_port {
+            if port == 0 {
+                return Err(
+                    "invalid metrics port `0`. Fix: use an integer from 1 to 65535.".to_string(),
+                );
+            }
+        }
+        if let Some(profile) = &self.profile {
+            parse_profile_name(profile)?;
+        }
+        Ok(())
+    }
 }
 
 /// Builder for [`GlobalFlags`] used by wrapper tools and tests.

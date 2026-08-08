@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.4] - 2026-08-07
+### Fixed
+- `emit_human` in `finding.rs` now sanitizes `finding.kind()` in addition to title, target, detail, and location to prevent control character / terminal escape sequence injection in finding types.
+- `emit_finding` now inspects `serde_json::Error` on JSON and SARIF output streams and maps stdout I/O failures (such as `BrokenPipe`) to `SanthError::Write` instead of misclassifying them as data serialization errors (`SanthError::Serialize`).
+- `SanthCliBuilder::run` now handles `ctrlc::Error::MultipleHandlers` gracefully so CLI runs in multi-command test suites or process hosts do not fail with `SanthExitCode::SystemError`.
+- `SanthCliBuilder::run` resets the process-global interrupt flag on startup, and `reset_interrupted()` is now exposed so signal state does not leak across multiple runs in the same process.
+- `GlobalFlags` now provides a `validate()` method to enforce flag invariant constraints (`metrics_port != 0`, valid profile names) on constructed or deserialized flag instances.
+
+### Added
+- `SanthExitCode` now provides an `as_u8()` accessor method returning the raw integer exit code.
+
 ## [0.1.3] - 2026-08-07
 
 ### Fixed

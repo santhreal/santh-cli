@@ -14,3 +14,12 @@ fn is_interrupted_is_publicly_pollable_and_defaults_false() {
         "with no SIGINT delivered, is_interrupted() must report false"
     );
 }
+
+#[test]
+fn reset_interrupted_clears_flag() {
+    santh_cli::reset_interrupted();
+    assert!(
+        !santh_cli::is_interrupted(),
+        "reset_interrupted must restore state to false"
+    );
+}
