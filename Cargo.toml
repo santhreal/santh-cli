@@ -11,19 +11,19 @@ rust-version = "1.85"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-clap = { version = "4.6.0", features = ["derive"] }
-ctrlc = { version = "3.5.2" }
-secfinding = { version = "0.4.1" }
-serde = { version = "1.0.228", features = ["derive"] }
-serde_json = { version = "1.0.149" }
-santh-tracing = { version = "0.2.1" }
-thiserror = { version = "2.0.18" }
-toml = { version = "0.8.23" }
-tracing = { version = "0.1.44" }
+clap = { workspace = true, features = ["derive"] }
+ctrlc = { workspace = true }
+secfinding = { path = "../../scanner/secfinding", version = "0.4.1" }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+santh-tracing = { path = "../santh-tracing", version = "0.2.1" }
+thiserror = { workspace = true }
+toml = { workspace = true }
+tracing = { workspace = true }
 
 [dev-dependencies]
-proptest = { version = "1.9.0" }
-tempfile = { version = "3.27.0" }
+proptest = { workspace = true }
+tempfile = { workspace = true }
 
 [package.metadata.santh]
 status = "beta"
